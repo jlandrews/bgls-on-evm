@@ -1,3 +1,41 @@
+
+
+const BGLS = artifacts.require("BGLS");
+const BGLSTestProxy = artifacts.require("BGLSTestProxy");
+
+contract("BGLS", async (accounts) =>  {
+  let bgls;
+  let bglsTest;
+  beforeEach(async () => {
+    bgls = await BGLS.new();
+    bglsTest = await BGLSTestProxy.new();
+  })
+  it("should verify trivial pairing", async () => {
+    assert(await bglsTest.pairingCheckTrivial.call());
+  });
+  it("should verify scalar multiple pairing", async () => {
+    assert(await bglsTest.pairingCheckMult.call());
+  });
+  it("should add points correctly", async () => {
+    assert(await bglsTest.addTest.call());
+  })
+  it("should do scalar multiplication correctly", async () => {
+    assert(await bglsTest.scalarTest.call());
+  })
+  it("should verify a simple signature correctly", async () => {
+    assert(await bglsTest.testSignature.call([12345,54321,10101,20202,30303]));
+  })
+  it("should sum points correctly", async () => {
+    await bglsTest.testSumPoints;
+    assert.fail();
+  })
+})
+/*
+three key
+(7307700123264958826188565077550911867218845064729782823756941224352741106717*i + 4837268578619086377931016223399801115439928842722085734641442641406132006880 : 13170354011759375596010229518330078667658622581281479526140260165310673565437*i + 3519472419736226496101607880999899898841292650067009379228752343357980588312 : 1)
+four key
+(2716981870054376425540623498944271869143173296821421331478826053599476430854*i + 4207954545713722779397243242064268224396102704576018253000218082904392461892 : 15016217483528080919615640796038236162852104966225325968042839587187338783249*i + 14823056799673950316800545417245630398819170129662340134056907505652527393991 : 1)
+*/
 /*
 function sumPoints(G1[] points) internal returns (G1) {
   G1 memory current = points[0];
@@ -65,7 +103,4 @@ function testMulti() public returns (bool) {
     17666574447146782318673097502150892916522088334833460488250104240828747929194,
     21135417369703474382124573170963634207503570334778660361646524490596958122804,pairX,pairY);
 }
-
-
-
 */

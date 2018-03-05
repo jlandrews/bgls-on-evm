@@ -1,12 +1,12 @@
 pragma solidity ^0.4.17;
 
-contract AltBN128 {
+contract BGLS {
   struct G1 {
     uint x;
     uint y;
   }
   G1 g1 = G1(1,2);
-
+  event PrintG1(uint x, uint y);
   struct G2 {
     uint xi;
     uint xr;
@@ -19,8 +19,8 @@ contract AltBN128 {
     4082367875863433681332203403145435568316851327593401208105741076214120093531,
     8495653923123431417604973247489272438418190587263600148770280649306958101930
   );
-
-  function modPow(uint256 base, uint256 exponent, uint256 modulus) public returns (uint256) {
+  event PrintInt(uint x);
+  function modPow(uint256 base, uint256 exponent, uint256 modulus) internal returns (uint256) {
     uint256[6] memory input = [32,32,32,base,exponent,modulus];
     uint256[1] memory result;
     assembly {
@@ -40,6 +40,23 @@ contract AltBN128 {
       }
     }
     return G1(result[0], result[1]);
+  }
+
+  function chkBit(bytes b, uint x) public returns (bool) {
+    return uint(b[x/8])&(uint(1)<<(x%8)) != 0;
+  }
+
+  function sumPoints(G1[] points, bytes indices) internal returns (G1) {
+    G1 memory acc = G1(0,0);
+    for (uint i = 0; i < points.length; i++) {
+      if (chkBit(indices, i)) {
+        PrintInt(i);
+        PrintG1(acc.x,acc.y);
+        PrintG1(points[i].x, points[i].y);
+        acc = addPoints(acc, points[i]);
+      }
+    }
+    return G1(acc.x, acc.y);
   }
 
   function scalarMultiply(G1 point, uint256 scalar) internal returns(G1) {
@@ -72,7 +89,7 @@ contract AltBN128 {
   uint256 pminus = 21888242871839275222246405745257275088696311157297823662689037894645226208582;
   uint256 pplus = 21888242871839275222246405745257275088696311157297823662689037894645226208584;
 
-  function hashToG1(bytes b) internal returns (G1) {
+  function hashToG1(uint[] b) internal returns (G1) {
     uint x = 0;
     while (true) {
       uint256 hx = uint256(keccak256(b,byte(x)))%prime;
@@ -87,5 +104,9 @@ contract AltBN128 {
         x++;
       }
     }
+  }
+
+  function checkSignature(uint[] message, G1 sig, G2 aggKey) internal returns (bool) {
+    return pairingCheck(sig, g2, hashToG1(message), aggKey);
   }
 }
