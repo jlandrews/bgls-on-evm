@@ -1,77 +1,65 @@
 pragma solidity ^0.4.17;
 
-import "contracts/AltBN128.sol";
+import "contracts/BGLS.sol";
 
-contract WeightedMultiSig is AltBN128 {
+contract WeightedMultiSig is BGLS {
   G1[] pairKeys;
   uint[] weights;
   uint threshold;
   uint state;
 
-  function WeightedMultiSig(uint[] pairKeyX, uint[] pairKeyY, uint[] _weights, uint _threshold) {
-    setStateInternal(pairKeyX, pairKeyY, _weights, _threshold);
-  }
-  function updateState(uint numSigners, bytes newState, bytes signers,
-    uint sigX, uint sigY,
-    uint pkXi, uint pkXr, uint pkYi, uint pkYr) public {
-      require(checkSig(signers, newState, sigX, sigY, pkXi, pkXr, pkYi, pkYr));
-      require(newState.length == 96*numSigners + 64);
-      uint _state = uint(newState[0:32]);
-      require(_state > state);
-      uint _threshold = uint(newState[32:64]);
-      uint[] pairKeyX = new uint[](numSigners);
-      uint[] pairKeyY = new uint[](numSigners);
-      uint[] _weights = new uint[](numSigners);
-      for (uint i = 0; i < numSigners; i++) {
-        uint x = 64 + i*96
-        pairKeyX[i] = newState[x:x+32];
-        pairKeyY[i] = newState[x+32:x+64];
-        _weights[i] = newState[x+64:x+96];
-      }
-      setStateInternal(pairKeyX, pairKeyY, _weights, _threshold);
+  event PrintInt(uint x);
 
-      //parse newState into 3n+1 uints, arrange into 3 arrays and call setStateInternal
+  function WeightedMultiSig(uint _threshold, uint[] pairKeyX, uint[] pairKeyY, uint[] _weights) public {
+    setStateInternal(0, _threshold, pairKeyX, pairKeyY, _weights);
+  }
+  function updateState(uint numSigners, uint[] newState, bytes signers,
+    uint sigX, uint sigY,
+    uint pkXi, uint pkXr, uint pkYi, uint pkYr) public returns (bool) {
+      //require(checkSig(signers, newState, sigX, sigY, pkXi, pkXr, pkYi, pkYr));
+      require(newState.length == 3*numSigners + 2);
+      require(newState[0] > state);
+      uint[] memory pairKeyX = new uint[](numSigners);
+      uint[] memory pairKeyY = new uint[](numSigners);
+      uint[] memory _weights = new uint[](numSigners);
+      for (uint i = 0; i < numSigners; i++) {
+        pairKeyX[i] = newState[i*3+2];
+        pairKeyY[i] = newState[i*3+3];
+        _weights[i] = newState[i*3+4];
+      }
+      setStateInternal(newState[0], newState[1], pairKeyX, pairKeyY, _weights);
+      return true;
     }
-  function setStateInternal(uint[] pairKeyX, uint[] pairKeyY, uint[] _weights, uint _threshold) internal {
+  function setStateInternal(uint _state, uint _threshold, uint[] pairKeyX, uint[] pairKeyY, uint[] _weights) internal {
     assert(pairKeyX.length == pairKeyY.length && pairKeyX.length == _weights.length);
-    G1[] storage _pairKeys = new G1[](pairKeyX.length);
+    pairKeys.length = pairKeyX.length;
     for (uint i = 0; i < pairKeyX.length; i++) {
-      _pairKeys.push(G1(pairKeyX[i], pairKeyY[i]));
+      pairKeys[i] = G1(pairKeyX[i], pairKeyY[i]);
     }
-    pairKeys = _pairKeys;
     weights = _weights;
     threshold = _threshold;
-    state += 1;
+    state = _state;
   }
-
-  function chkBit(bytes b, uint x) public pure returns (bool) {
-    return uint(b[x/8])&(uint(1)<<(x%8)) != 0;
-  }
-
-  function addKey(uint x, uint y) public {
-    pairKeys.push(G1(x,y));
-    weights.push(1);
-    threshold = weights.length/2 + 1;
-  }
-  function isQuorum(bytes signers) internal view returns (bool){
+  function isQuorum(bytes signers) public returns (bool){
     uint weight = 0;
     for (uint i = 0; i < weights.length; i++) {
-      if (chkBit(signers,i)) weight += weights[i];
+      if (chkBit(signers,i)) {
+        weight += weights[i];
+      }
     }
     return weight >= threshold;
   }
+
+
   function checkAggKey(bytes signers, G2 aggKey) internal returns (bool) {
-    G1 memory acc = G1(0,0);
-    for (uint i = 0; i < weights.length; i++) {
-      if (chkBit(signers,i)) acc = addPoints(acc, pairKeys[i]);
-    }
-    return pairingCheck(acc,g2,g1,aggKey);
+    return pairingCheck(sumPoints(pairKeys, signers),g2,g1,aggKey);
   }
-  function checkSig(bytes signers, bytes message,
+  function checkSig(bytes signers, uint[] message,
     uint sigX, uint sigY,
     uint pkXi, uint pkXr, uint pkYi, uint pkYr) public returns (bool) {
       G2 memory aggKey = G2(pkXi, pkXr, pkYi, pkYr);
       G1 memory sig = G1(sigX, sigY);
-      return isQuorum(signers) && checkAggKey(signers, aggKey) && checkSignature(message, sig, aggKey);
-    }
+      bool t = isQuorum(signers) && checkAggKey(signers, aggKey);// && checkSignature(message, sig, aggKey)
+      return t;
+  }
 }
