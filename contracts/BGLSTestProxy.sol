@@ -11,7 +11,7 @@ contract BGLSTestProxy is BGLS {
     return pairingCheck(scalarMultiply(g1,12345),g2,scalarMultiply(g1,12345),g2);
   }
   event PrintG1(string t, uint x, uint y);
-  
+
   function addTest() public returns (bool) {
     G1 memory a = G1(
       9121282642809701931333593728297233225556711250127745709186816755779879923737,
@@ -59,48 +59,47 @@ contract BGLSTestProxy is BGLS {
       13617110937608119725159715497522173305174557569388165671955816638318382445127,
       5989220236822003292279415228814579004737160217409816506111930966995235750604
     );
-    G1 memory p1 = sumPoints(points, hex"01");
-    G1 memory p2 = sumPoints(points, hex"02");
-    G1 memory p3 = sumPoints(points, hex"04");
-    G1 memory p4 = sumPoints(points, hex"08");
-    G1 memory p5 = sumPoints(points, hex"16");
-    G1 memory p12 = sumPoints(points, hex"03");
-    G1 memory p13 = sumPoints(points, hex"05");
-    G1 memory p23 = sumPoints(points, hex"06");
-    G1 memory add12 = addPoints(points[0], points[1]);
-    G1 memory add13 = addPoints(points[0], points[2]);
-    G1 memory add23 = addPoints(points[1], points[2]);
-    PrintG1("p1",p1.x, p1.y);
-    PrintG1("points[0]", points[0].x, points[0].y);
-    PrintG1("p2",p2.x, p2.y);
-    PrintG1("points[1]", points[1].x, points[1].y);
-    PrintG1("p3",p3.x, p3.y);
-    PrintG1("points[2]", points[2].x, points[2].y);
-    PrintG1("p4",p4.x, p4.y);
-    PrintG1("points[3]", points[3].x, points[3].y);
-    PrintG1("p5",p5.x, p5.y);
-    PrintG1("points[4]", points[4].x, points[4].y);
-    PrintG1("p12",p12.x, p12.y);
-    PrintG1("add12", add12.x, add12.y);
-    PrintG1("p13",p13.x, p13.y);
-    PrintG1("add13", add13.x, add13.y);
-    PrintG1("p23",p23.x, p23.y);
-    PrintG1("add23", add23.x, add23.y);
-
-    return points[0].x == p1.x && points[0].y == p1.y &&
-      points[1].x == p2.x && points[1].y == p2.y &&
-      points[2].x == p3.x && points[2].y == p3.y &&
-      points[3].x == p4.x && points[3].y == p4.y &&
-      points[4].x == p5.x && points[4].y == p5.y; //&&
+    //G1 memory p1 = sumPoints(points, hex"01");
+    //G1 memory p2 = sumPoints(points, hex"02");
+    //G1 memory p3 = sumPoints(points, hex"04");
+    //G1 memory p4 = sumPoints(points, hex"08");
+    //G1 memory p5 = sumPoints(points, hex"10");
+    //G1 memory p12 = sumPoints(points, hex"03");
+    //G1 memory p13 = sumPoints(points, hex"05");
+    //G1 memory p23 = sumPoints(points, hex"06");
+    G1 memory sumall = sumPoints(points, hex"0f");
+    //G1 memory add12 = addPoints(points[0], points[1]);
+    //G1 memory add13 = addPoints(points[0], points[2]);
+    //G1 memory add23 = addPoints(points[1], points[2]);
+    G1 memory addall = addPoints(points[0], addPoints(points[1], addPoints(points[2], points[3])));
+    //PrintG1("p1",p1.x, p1.y);
+    //PrintG1("points[0]", points[0].x, points[0].y);
+    //PrintG1("p2",p2.x, p2.y);
+    //PrintG1("points[1]", points[1].x, points[1].y);
+    //PrintG1("p3",p3.x, p3.y);
+    //PrintG1("points[2]", points[2].x, points[2].y);
+    //PrintG1("p4",p4.x, p4.y);
+    //PrintG1("points[3]", points[3].x, points[3].y);
+    //PrintG1("p5",p5.x, p5.y);
+    //PrintG1("points[4]", points[4].x, points[4].y);
+    //PrintG1("p12",p12.x, p12.y);
+    //PrintG1("add12", add12.x, add12.y);
+    //PrintG1("p13",p13.x, p13.y);
+    //PrintG1("add13", add13.x, add13.y);
+    //PrintG1("p23",p23.x, p23.y);
+    //PrintG1("add23", add23.x, add23.y);
+    PrintG1("sumall", sumall.x, sumall.y);
+    PrintG1("addall", addall.x, addall.y);
+    return sumall.x == addall.x && sumall.y == addall.y;
+      //points[0].x == p1.x && points[0].y == p1.y &&
+      //points[1].x == p2.x && points[1].y == p2.y &&
+      //points[2].x == p3.x && points[2].y == p3.y &&
+      //points[3].x == p4.x && points[3].y == p4.y &&
+      //points[4].x == p5.x && points[4].y == p5.y &&
       //p12.x == add12.x && p12.y == add12.y &&
       //p13.x == add13.x && p13.y == add13.y &&
-      //p23.x == add23.x && p23.y == add23.y;
-    //return eqG1(points[0], p1) && eqG1(points[1], p2) && eqG1(points[2], p3) && eqG1(points[3], p4) && eqG1(points[4], p5) &&
-    //eqG1(p12, add12) && eqG1(p13, add13) && eqG1(p23, add23);
+      //p23.x == add23.x && p23.y == add23.y &&
   }
-
-
-
 
 
 

@@ -1,3 +1,4 @@
+
 pragma solidity ^0.4.17;
 
 import "contracts/WeightedMultiSig.sol";
@@ -23,7 +24,6 @@ contract WMSTestProxy is WeightedMultiSig {
     bytes memory bits = hex"01";
     return checkAggKey(bits, AggKey);
   }
-
   function testPairKey2() public returns (bool) {
     G2 memory AggKey = G2(
       20006812794463773049283962047975497795722587578259288681701348081786051400258,
@@ -61,7 +61,7 @@ contract WMSTestProxy is WeightedMultiSig {
       15747707797933322344134861606644256454202498251498043888932613691897963621833,
       10197200283701669569763976293743546257101447758446954765388293798186868596696
     );
-    bytes memory bits = hex"16";
+    bytes memory bits = hex"10";
     return checkAggKey(bits, AggKey);
   }
 }
