@@ -71,6 +71,5 @@ contract WeightedMultiSig is BGLS {
       G2 memory aggKey = G2(pkXi, pkXr, pkYi, pkYr);
       G1 memory sig = G1(sigX, sigY);
       return isQuorum(signers) && checkAggKey(signers, aggKey) && checkSignature(message, sig, aggKey);
-    }
   }
 }
