@@ -9,11 +9,10 @@ contract WeightedMultiSig is BGLS {
   uint threshold;
   uint state;
 
-  event PrintInt(uint x);
-
   function WeightedMultiSig(uint _threshold, uint[] pairKeyX, uint[] pairKeyY, uint[] _weights) public {
     setStateInternal(0, _threshold, pairKeyX, pairKeyY, _weights);
   }
+  
   function updateState(uint numSigners, uint[] newState, bytes signers,
     uint sigX, uint sigY,
     uint pkXi, uint pkXr, uint pkYi, uint pkYr) public returns (bool) {
@@ -30,7 +29,8 @@ contract WeightedMultiSig is BGLS {
       }
       setStateInternal(newState[0], newState[1], pairKeyX, pairKeyY, _weights);
       return true;
-    }
+  }
+
   function setStateInternal(uint _state, uint _threshold, uint[] pairKeyX, uint[] pairKeyY, uint[] _weights) internal {
     assert(pairKeyX.length == pairKeyY.length && pairKeyX.length == _weights.length);
     pairKeys.length = pairKeyX.length;
@@ -41,6 +41,7 @@ contract WeightedMultiSig is BGLS {
     threshold = _threshold;
     state = _state;
   }
+
   function isQuorum(bytes signers) public returns (bool){
     uint weight = 0;
     for (uint i = 0; i < weights.length; i++) {
@@ -51,25 +52,17 @@ contract WeightedMultiSig is BGLS {
     return weight >= threshold;
   }
 
-
   function checkAggKey(bytes signers, G2 aggKey) internal returns (bool) {
-    PrintInt(uint(signers[0]));
-    PrintInt(aggKey.xi);
-    PrintInt(aggKey.xr);
-    PrintInt(aggKey.yi);
-    PrintInt(aggKey.yr);
-    PrintInt(pairKeys[0].x);
-    PrintInt(pairKeys[0].y);
-    G1 memory pk = sumPoints(pairKeys, signers);
-    //PrintInt(pk.x);
-    //PrintInt(pk.y);
-    return pairingCheck(pk,g2,g1,aggKey);
+    return pairingCheck(sumPoints(pairKeys, signers),g2,g1,aggKey);
   }
+
   function checkSig(bytes signers, uint[] message,
     uint sigX, uint sigY,
     uint pkXi, uint pkXr, uint pkYi, uint pkYr) public returns (bool) {
       G2 memory aggKey = G2(pkXi, pkXr, pkYi, pkYr);
       G1 memory sig = G1(sigX, sigY);
-      return isQuorum(signers) && checkAggKey(signers, aggKey) && checkSignature(message, sig, aggKey);
+      return isQuorum(signers) &&
+            checkAggKey(signers, aggKey) &&
+            checkSignature(message, sig, aggKey);
   }
 }
