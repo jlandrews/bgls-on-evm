@@ -5,7 +5,7 @@ import "contracts/WeightedMultiSig.sol";
 
 contract WMSTestProxy is WeightedMultiSig {
 
-  function WMSTestProxy(uint threshold, uint[] pkX, uint[] pkY, uint[] weights) WeightedMultiSig(threshold, pkX, pkY, weights) {
+  function WMSTestProxy(uint threshold, uint[] pkX, uint[] pkY, uint[] weights) public WeightedMultiSig(threshold, pkX, pkY, weights) {
 
   }
 

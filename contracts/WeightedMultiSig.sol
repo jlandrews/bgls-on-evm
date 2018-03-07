@@ -12,7 +12,7 @@ contract WeightedMultiSig is BGLS {
   function WeightedMultiSig(uint _threshold, uint[] pairKeyX, uint[] pairKeyY, uint[] _weights) public {
     setStateInternal(0, _threshold, pairKeyX, pairKeyY, _weights);
   }
-  
+
   function updateState(uint numSigners, uint[] newState, bytes signers,
     uint sigX, uint sigY,
     uint pkXi, uint pkXr, uint pkYi, uint pkYr) public returns (bool) {
@@ -42,7 +42,7 @@ contract WeightedMultiSig is BGLS {
     state = _state;
   }
 
-  function isQuorum(bytes signers) public returns (bool){
+  function isQuorum(bytes signers) public view returns (bool){
     uint weight = 0;
     for (uint i = 0; i < weights.length; i++) {
       if (chkBit(signers,i)) {

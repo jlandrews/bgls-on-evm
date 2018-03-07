@@ -19,7 +19,7 @@ contract BGLS {
     4082367875863433681332203403145435568316851327593401208105741076214120093531,
     8495653923123431417604973247489272438418190587263600148770280649306958101930
   );
-  
+
   function modPow(uint256 base, uint256 exponent, uint256 modulus) internal returns (uint256) {
     uint256[6] memory input = [32,32,32,base,exponent,modulus];
     uint256[1] memory result;
@@ -42,7 +42,7 @@ contract BGLS {
     return G1(result[0], result[1]);
   }
 
-  function chkBit(bytes b, uint x) public returns (bool) {
+  function chkBit(bytes b, uint x) public pure returns (bool) {
     return uint(b[x/8])&(uint(1)<<(x%8)) != 0;
   }
 
