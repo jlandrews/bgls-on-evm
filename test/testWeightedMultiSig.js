@@ -38,11 +38,11 @@ contract("WeightedMultiSig", async (accounts) =>  {
     ],[20,20,20,20,20]);
   })
   it("should verify maximum quorum correctly", async () => {
-    let res = await WMS.isQuorum.call("\xff");
+    let res = await WMS.isQuorum.call("0xff");
     assert.equal(res,true);
   });
   it("should block null quorum", async () => {
-    let res = await WMS.isQuorum.call("\x00");
+    let res = await WMS.isQuorum.call("0x00");
     assert.equal(res,false);
   })
   it("should pass with 4 of 5", async () => {
@@ -104,7 +104,8 @@ contract("WeightedMultiSig", async (accounts) =>  {
     "2716981870054376425540623498944271869143173296821421331478826053599476430854", //pkxi
     "4207954545713722779397243242064268224396102704576018253000218082904392461892", //pkxr
     "15016217483528080919615640796038236162852104966225325968042839587187338783249", //pkyi
-    "14823056799673950316800545417245630398819170129662340134056907505652527393991"), "modified sig"); //pkyr
+    "14823056799673950316800545417245630398819170129662340134056907505652527393991"), //pkyr
+    "modified sig");
   })
   it("should fail with modified pubkey", async () => {
     promiseToThrow(WMS.updateState.call(1, [1, 67,
@@ -117,7 +118,8 @@ contract("WeightedMultiSig", async (accounts) =>  {
     "2716981870054376425540623498944271869143173296821421331478826053599476430854", //pkxi
     "4207954545713722779397243242064268224396102704576018253000218082904392461892", //pkxr
     "15016217483528080919615640796038236162852104966225325968042839587187338783249", //pkyi
-    "14823056799673950316800545417245630398819170129662340134056907505652527393990"), "modified pubkey"); //pkyr
+    "14823056799673950316800545417245630398819170129662340134056907505652527393990"), //pkyr
+    "modified pubkey");
   })
 
 
