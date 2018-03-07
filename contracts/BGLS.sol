@@ -6,7 +6,7 @@ contract BGLS {
     uint y;
   }
   G1 g1 = G1(1,2);
-  event PrintG1(uint x, uint y);
+  event PrintG1(string m, uint x, uint y);
   struct G2 {
     uint xi;
     uint xr;
@@ -34,6 +34,8 @@ contract BGLS {
   function addPoints(G1 a, G1 b) internal returns (G1) {
     uint256[4] memory input = [a.x, a.y, b.x, b.y];
     uint[2] memory result;
+    PrintG1("add a",a.x,a.y);
+    PrintG1("add b",b.x,b.y);
     assembly {
       if iszero(call(not(0), 0x06, 0, input, 0x80, result, 0x40)) {
         revert(0, 0)
@@ -51,8 +53,8 @@ contract BGLS {
     for (uint i = 0; i < points.length; i++) {
       if (chkBit(indices, i)) {
         PrintInt(i);
-        PrintG1(acc.x,acc.y);
-        PrintG1(points[i].x, points[i].y);
+        PrintG1("acc",acc.x,acc.y);
+        PrintG1("points",points[i].x, points[i].y);
         acc = addPoints(acc, points[i]);
       }
     }

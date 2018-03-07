@@ -26,8 +26,7 @@ contract("BGLS", async (accounts) =>  {
     assert(await bglsTest.testSignature.call([12345,54321,10101,20202,30303]));
   })
   it("should sum points correctly", async () => {
-    await bglsTest.testSumPoints;
-    assert.fail();
+    assert(await bglsTest.testSumPoints.call());
   })
 })
 /*

@@ -1,3 +1,4 @@
+
 pragma solidity ^0.4.17;
 
 import "contracts/BGLS.sol";
@@ -16,7 +17,7 @@ contract WeightedMultiSig is BGLS {
   function updateState(uint numSigners, uint[] newState, bytes signers,
     uint sigX, uint sigY,
     uint pkXi, uint pkXr, uint pkYi, uint pkYr) public returns (bool) {
-      //require(checkSig(signers, newState, sigX, sigY, pkXi, pkXr, pkYi, pkYr));
+      require(checkSig(signers, newState, sigX, sigY, pkXi, pkXr, pkYi, pkYr));
       require(newState.length == 3*numSigners + 2);
       require(newState[0] > state);
       uint[] memory pairKeyX = new uint[](numSigners);
@@ -52,14 +53,24 @@ contract WeightedMultiSig is BGLS {
 
 
   function checkAggKey(bytes signers, G2 aggKey) internal returns (bool) {
-    return pairingCheck(sumPoints(pairKeys, signers),g2,g1,aggKey);
+    PrintInt(uint(signers[0]));
+    PrintInt(aggKey.xi);
+    PrintInt(aggKey.xr);
+    PrintInt(aggKey.yi);
+    PrintInt(aggKey.yr);
+    PrintInt(pairKeys[0].x);
+    PrintInt(pairKeys[0].y);
+    G1 memory pk = sumPoints(pairKeys, signers);
+    //PrintInt(pk.x);
+    //PrintInt(pk.y);
+    return pairingCheck(pk,g2,g1,aggKey);
   }
   function checkSig(bytes signers, uint[] message,
     uint sigX, uint sigY,
     uint pkXi, uint pkXr, uint pkYi, uint pkYr) public returns (bool) {
       G2 memory aggKey = G2(pkXi, pkXr, pkYi, pkYr);
       G1 memory sig = G1(sigX, sigY);
-      bool t = isQuorum(signers) && checkAggKey(signers, aggKey);// && checkSignature(message, sig, aggKey)
-      return t;
+      return isQuorum(signers) && checkAggKey(signers, aggKey) && checkSignature(message, sig, aggKey);
+    }
   }
 }
